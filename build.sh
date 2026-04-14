@@ -1,5 +1,6 @@
 # build.sh
 #!/bin/bash
+rm -r dist 2>/dev/null || true
 mkdir -p dist
 
 GOOS=linux   GOARCH=amd64  go build -C go -o ../dist/app-linux-amd64    .

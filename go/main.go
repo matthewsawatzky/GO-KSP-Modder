@@ -20,12 +20,13 @@ import (
 var staticFiles embed.FS
 
 func main() {
-	// Store config.json next to wherever the user runs from.
-	cwd, err := os.Getwd()
+	// Store config.json next to the binary executable.
+	exePath, err := os.Executable()
 	if err != nil {
 		log.Fatal(err)
 	}
-	configPath := filepath.Join(cwd, "config.json")
+	exeDir := filepath.Dir(exePath)
+	configPath := filepath.Join(exeDir, "config.json")
 
 	cfg := config.NewManager(configPath)
 	if err := cfg.EnsureConfig(); err != nil {
@@ -97,7 +98,13 @@ func main() {
 		openBrowser("http://localhost:5050")
 	}()
 
-	fmt.Println("KSP Moder running at http://localhost:5050")
+	fmt.Println("\n╔═══════════════════════════════════════════════════════╗")
+	fmt.Println("║         🚀 KSP Moder running at                       ║")
+	fmt.Println("║              http://localhost:5050                    ║")
+	fmt.Println("║                                                       ║")
+	fmt.Println("║  Press Ctrl+C in terminal to stop the server          ║")
+	fmt.Println("║  Or just close the window                             ║")
+	fmt.Println("╚═══════════════════════════════════════════════════════╝\n")
 	if err := http.ListenAndServe("0.0.0.0:5050", mux); err != nil {
 		log.Fatal(err)
 	}
