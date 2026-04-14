@@ -16,7 +16,7 @@ import (
 	"ksp-moder/handlers"
 )
 
-//go:embed app/static
+//go:embed static
 var staticFiles embed.FS
 
 func main() {
