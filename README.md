@@ -20,3 +20,10 @@ Download a binary that suits your system
 
 *sorry i cant test all these, if someone does please report back!
 
+
+
+---
+
+## NOTE
+
+This is by no means a CKAN Replacment, But it can be used in tandom with KCAN or If you Manuly install mods
