@@ -10,7 +10,10 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
+
+	"golang.org/x/term"
 
 	"ksp-moder/config"
 	"ksp-moder/handlers"
@@ -98,16 +101,42 @@ func main() {
 		openBrowser("http://localhost:5050")
 	}()
 
-	fmt.Println("\n╔═══════════════════════════════════════════════════════╗")
-	fmt.Println("║         🚀 KSP Moder running at                       ║")
-	fmt.Println("║              http://localhost:5050                    ║")
-	fmt.Println("║                                                       ║")
-	fmt.Println("║  Press Ctrl+C in terminal to stop the server          ║")
-	fmt.Println("║  Or just close the window                             ║")
-	fmt.Println("╚═══════════════════════════════════════════════════════╝\n")
+	printBanner()
 	if err := http.ListenAndServe("0.0.0.0:5050", mux); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func printBanner() {
+	width, _, err := term.GetSize(int(os.Stdout.Fd()))
+	if err != nil || width < 20 {
+		width = 60 // fallback
+	}
+
+	inner := width - 2 // subtract the two border chars
+
+	border := "╔" + strings.Repeat("═", inner) + "╗"
+	blank := "║" + strings.Repeat(" ", inner) + "║"
+	bottom := "╚" + strings.Repeat("═", inner) + "╝"
+
+	center := func(s string, extraWidth int) string {
+		// extraWidth for chars that are wide (e.g. emoji = 2 cols but len = 4 bytes)
+		pad := inner - len(s) + extraWidth
+		left := pad / 2
+		right := pad - left
+		return "║" + strings.Repeat(" ", left) + s + strings.Repeat(" ", right) + "║"
+	}
+
+	fmt.Print("\033[2J\033[H")
+	fmt.Println(border)
+	fmt.Println(blank)
+	fmt.Println(center("🚀 KSP Moder running at", 2)) // 1 = emoji extra width
+	fmt.Println(center("http://localhost:5050", 0))
+	fmt.Println(blank)
+	fmt.Println(center("Press Ctrl+C in terminal to stop the server", 0))
+	fmt.Println(center("Or just close the window", 0))
+	fmt.Println(blank)
+	fmt.Println(bottom)
 }
 
 func openBrowser(url string) {
