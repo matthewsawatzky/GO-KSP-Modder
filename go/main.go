@@ -35,7 +35,7 @@ func main() {
 	mux := http.NewServeMux()
 
 	// ── Static files ──────────────────────────────────────────────────────────
-	staticFS, err := fs.Sub(staticFiles, "app/static")
+	staticFS, err := fs.Sub(staticFiles, "static")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -43,7 +43,7 @@ func main() {
 
 	// Root → index.html
 	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
-		data, err := staticFiles.ReadFile("app/static/index.html")
+		data, err := staticFiles.ReadFile("static/index.html")
 		if err != nil {
 			http.Error(w, "index.html not found", http.StatusInternalServerError)
 			return
