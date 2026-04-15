@@ -44,3 +44,11 @@ The config file stores settings such as:
 - It is designed to be used alongside manual mod installation or other tools like CKAN.
 - The conflict detection is basic and does not guarantee full compatibility checks.
 
+
+---
+
+## Image(s)
+
+
+![Mods tab preview](/reamedocs/ksp-modder-mods-tab-image.png)
+~ Don't mind the amount of mods I have ~
