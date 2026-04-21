@@ -68,7 +68,7 @@ To reset settings, delete that folder.
 This usually means the file isn't marked as executable. Navigate to the binary's directory in Terminal and run:
 
 ```bash
-chmod +x <name_of_program>
+chmod +x ksp-modder
 ```
 
 > sorry these instructions are not as clean as I'd like... but I hope and pray you don't need them
