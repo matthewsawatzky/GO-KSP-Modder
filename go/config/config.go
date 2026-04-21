@@ -9,15 +9,15 @@ import (
 
 // DefaultConfigPath returns the platform-appropriate config file location:
 //
-//	macOS   → ~/Library/Application Support/ksp-moder/config.json
-//	Windows → %AppData%\Roaming\ksp-moder\config.json
-//	Linux   → ~/.config/ksp-moder/config.json
+//	macOS   → ~/Library/Application Support/ksp-modder/config.json
+//	Windows → %AppData%\Roaming\ksp-modder\config.json
+//	Linux   → ~/.config/ksp-modder/config.json
 func DefaultConfigPath() (string, error) {
 	dir, err := os.UserConfigDir()
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(dir, "ksp-moder", "config.json"), nil
+	return filepath.Join(dir, "ksp-modder", "config.json"), nil
 }
 
 // Settings holds user preferences.
@@ -26,6 +26,7 @@ type Settings struct {
 	LogLines      int    `json:"log_lines"`
 	ConfirmRemove bool   `json:"confirm_remove"`
 	SortModsBy    string `json:"sort_mods_by"`
+	Theme         string `json:"theme"`
 }
 
 // Config is the top-level structure persisted to config.json.
@@ -48,6 +49,7 @@ func defaults() Config {
 			LogLines:      500,
 			ConfirmRemove: true,
 			SortModsBy:    "name",
+			Theme:         "dark",
 		},
 	}
 }

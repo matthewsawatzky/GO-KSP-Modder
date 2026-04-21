@@ -45,7 +45,7 @@ function toast(message, type = 'success') {
   const container = document.getElementById('toast-container');
   const el = document.createElement('div');
   el.className = 'toast ' + type;
-  const icon = type === 'success' ? '\u2713' : '\u2717';
+  const icon = type === 'success' ? '\u2713' : '\u2715';
   el.innerHTML = '<span class="toast-icon">' + icon + '</span><span>' + escHtml(message) + '</span>';
   container.appendChild(el);
   setTimeout(() => { el.remove(); }, 4000);
@@ -105,6 +105,7 @@ async function loadSettings() {
   try {
     appSettings = await api('/api/settings');
     applyAccentColor(appSettings.accent_color || '#8AC04A');
+    applyTheme(appSettings.theme || 'dark');
 
     const colorInput = document.getElementById('accent-color-input');
     const hexInput = document.getElementById('accent-color-hex');
@@ -138,7 +139,9 @@ function applyAccentColor(color) {
 
   document.documentElement.style.setProperty('--accent', color);
   document.documentElement.style.setProperty('--accent-hover', hover);
-  document.documentElement.style.setProperty('--accent-alpha', `rgba(${r},${g},${b},0.2)`);
+  document.documentElement.style.setProperty('--accent-alpha', `rgba(${r},${g},${b},0.12)`);
+  document.documentElement.style.setProperty('--accent-dim', `rgba(${r},${g},${b},0.12)`);
+  document.documentElement.style.setProperty('--accent-glow', `rgba(${r},${g},${b},0.25)`);
   document.documentElement.style.setProperty('--success', color);
 }
 
@@ -170,6 +173,18 @@ function updateSwatchActive(color) {
   });
 }
 
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  document.querySelectorAll('.theme-swatch').forEach(s => {
+    s.classList.toggle('active', s.dataset.theme === theme);
+  });
+}
+
+function setTheme(theme) {
+  applyTheme(theme);
+  appSettings.theme = theme;
+}
+
 function rgbToHex(rgb) {
   const m = rgb.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
   if (!m) return '';
@@ -186,6 +201,7 @@ async function saveAllSettings() {
     sort_mods_by: document.getElementById('sort-mods-select').value,
     confirm_remove: document.getElementById('confirm-remove-cb').checked,
     log_lines: parseInt(document.getElementById('log-lines-input').value) || 500,
+    theme: appSettings.theme || 'dark',
   };
   try {
     const data = await api('/api/settings', {
@@ -202,6 +218,7 @@ async function saveAllSettings() {
 
 async function resetSettings() {
   setAccentPreset('#8AC04A');
+  setTheme('dark');
   document.getElementById('sort-mods-select').value = 'name';
   document.getElementById('confirm-remove-cb').checked = true;
   document.getElementById('log-lines-input').value = 500;
@@ -250,7 +267,7 @@ async function detectInstalls() {
     const installs = await api('/api/detect-installs');
     const list = document.getElementById('installs-list');
     if (installs.length === 0) {
-      list.innerHTML = '<div class="empty-state">No KSP installs detected automatically. Use the manual path option below.</div>';
+      list.innerHTML = '<div class="empty-state">No KSP installs found automatically. Use the manual path below, or check under the couch cushions.</div>';
       return;
     }
     list.innerHTML = installs.map(inst =>
@@ -259,7 +276,7 @@ async function detectInstalls() {
           '<div class="card-label">' + escHtml(inst.label) + '</div>' +
           '<div class="card-path">' + escHtml(inst.path) + '</div>' +
         '</div>' +
-        '<button class="btn btn-primary btn-sm" onclick="selectInstall(\'' + escHtml(inst.path).replace(/'/g, "\\'").replace(/\\/g, "\\\\") + '\')">Select</button>' +
+        '<button class="btn btn-accent btn-sm" onclick="selectInstall(\'' + escHtml(inst.path).replace(/'/g, "\\'").replace(/\\/g, "\\\\") + '\')">Select</button>' +
       '</div>'
     ).join('');
   } catch (e) {
@@ -342,15 +359,15 @@ function sortMods(mods) {
 function renderModTable(mods) {
   const tbody = document.getElementById('mod-tbody');
   if (mods.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No mods found in GameData</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-state">GameData is empty. Your Kerbals are flying stock — bless their hearts.</td></tr>';
     return;
   }
   tbody.innerHTML = mods.map(mod => {
     const statusBadge = mod.enabled
-      ? '<span class="badge badge-enabled">Enabled</span>'
-      : '<span class="badge badge-disabled">Disabled</span>';
+      ? '<span class="badge badge-enabled"><span class="dot"></span>Nominal</span>'
+      : '<span class="badge badge-disabled"><span class="dot"></span>Offline</span>';
     const conflictCell = mod.conflicts && mod.conflicts.length > 0
-      ? '<span class="conflict-icon" title="Conflicts with: ' + escHtml(mod.conflicts.map(c => c.shared_with.join(', ')).join('; ')) + '">\u26A0</span>'
+      ? '<span class="conflict-badge" title="Conflicts with: ' + escHtml(mod.conflicts.map(c => c.shared_with.join(', ')).join('; ')) + '">\u26A0 Conflict</span>'
       : '';
     const noteText = mod.note
       ? '<span class="note-preview" onclick="openNoteModal(\'' + escHtml(mod.name).replace(/'/g, "\\'") + '\')" title="' + escHtml(mod.note) + '">' + escHtml(mod.note.substring(0, 40)) + (mod.note.length > 40 ? '...' : '') + '</span>'
@@ -368,7 +385,7 @@ function renderModTable(mods) {
       '<td>' + conflictCell + '</td>' +
       '<td>' + noteText + '</td>' +
       '<td class="mod-actions">' +
-        '<button class="btn btn-sm" onclick="toggleMod(\'' + escHtml(mod.name).replace(/'/g, "\\'") + '\')">' + toggleLabel + '</button>' +
+        '<button class="btn btn-sm btn-ghost" onclick="toggleMod(\'' + escHtml(mod.name).replace(/'/g, "\\'") + '\')">' + toggleLabel + '</button>' +
         '<button class="btn btn-sm btn-danger" onclick="removeMod(\'' + escHtml(mod.name).replace(/'/g, "\\'") + '\')">Remove</button>' +
       '</td>' +
     '</tr>';
@@ -688,7 +705,7 @@ async function loadSaves() {
     const saves = await api('/api/saves');
     const list = document.getElementById('saves-list');
     if (saves.length === 0) {
-      list.innerHTML = '<div class="empty-state">No save games found</div>';
+      list.innerHTML = '<div class="empty-state">No missions on record. Time to make history, or at least interesting craters.</div>';
       return;
     }
     list.innerHTML = saves.map(save => {
@@ -702,7 +719,7 @@ async function loadSaves() {
       return '<div class="save-card">' +
         '<div class="save-header">' +
           '<span class="save-name">' + escHtml(save.name) + '</span>' +
-          '<button class="btn btn-primary btn-sm" onclick="backupSave(\'' + escHtml(save.name).replace(/'/g, "\\'") + '\')">Backup</button>' +
+          '<button class="btn btn-accent btn-sm" onclick="backupSave(\'' + escHtml(save.name).replace(/'/g, "\\'") + '\')">Backup</button>' +
         '</div>' +
         '<div class="save-meta">' + save.size_mb + ' MB &middot; Modified: ' + escHtml(save.modified) + '</div>' +
         backupsHtml +
@@ -776,7 +793,7 @@ async function loadDiskInfo() {
     const data = await api('/api/info');
     document.getElementById('info-version').innerHTML =
       '<strong>Game Version:</strong> ' + escHtml(data.version) +
-      '<br><strong>Install Path:</strong> <span style="font-family:monospace;font-size:0.9em;">' + escHtml(data.path) + '</span>';
+      '<br><strong>Install Path:</strong> <span style="font-family:\'SF Mono\',monospace;font-size:0.9em;">' + escHtml(data.path) + '</span>';
 
     const usage = data.disk_usage;
     const total = usage.Total || 1;
@@ -801,7 +818,7 @@ async function loadScreenshots() {
     const screenshots = await api('/api/screenshots');
     const gallery = document.getElementById('screenshots-gallery');
     if (screenshots.length === 0) {
-      gallery.innerHTML = '<div class="empty-state">No screenshots found</div>';
+      gallery.innerHTML = '<div class="empty-state">No spectacular failures documented yet.</div>';
       return;
     }
     gallery.innerHTML = screenshots.map(ss =>
@@ -820,7 +837,7 @@ async function loadCrafts() {
     const crafts = await api('/api/crafts');
     const tbody = document.getElementById('crafts-tbody');
     if (crafts.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="4" class="empty-state">No craft files found</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="4" class="empty-state">The VAB is empty. The engineers are confused.</td></tr>';
       return;
     }
     tbody.innerHTML = crafts.map(c =>
@@ -844,7 +861,7 @@ async function scanModErrors() {
     return;
   }
   const container = document.getElementById('mod-errors-results');
-  container.innerHTML = '<div class="empty-state">Scanning log…</div>';
+  container.innerHTML = '<div class="empty-state">Scanning log\u2026</div>';
   try {
     const data = await api('/api/logs/mod-errors');
     renderModErrors(data);
@@ -866,7 +883,7 @@ function renderModErrors(data) {
 
   if (entries.length === 0) {
     container.innerHTML =
-      '<div class="empty-state" style="padding:20px 0;">No mod-related errors found in the log ✓</div>';
+      '<div class="empty-state" style="padding:20px 0;">No mod-related errors found in the log \u2713</div>';
     return;
   }
 
@@ -886,7 +903,7 @@ function renderModErrors(data) {
       '<div class="mod-error-line">' + escHtml(l) + '</div>'
     ).join('');
     const moreNote = hasMore
-      ? '<div class="mod-error-more">… and ' + (info.total - info.lines.length) + ' more error' + (info.total - info.lines.length !== 1 ? 's' : '') + ' (showing first ' + info.lines.length + ')</div>'
+      ? '<div class="mod-error-more">\u2026 and ' + (info.total - info.lines.length) + ' more error' + (info.total - info.lines.length !== 1 ? 's' : '') + ' (showing first ' + info.lines.length + ')</div>'
       : '';
 
     return (

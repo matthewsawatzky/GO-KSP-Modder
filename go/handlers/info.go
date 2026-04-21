@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"ksp-moder/services"
+	"ksp-modder/services"
 )
 
 // GetInfo returns game version, disk usage, and install path.

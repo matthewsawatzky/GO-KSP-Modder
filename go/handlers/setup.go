@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"os"
 
-	"ksp-moder/services"
+	"ksp-modder/services"
 )
 
 // DetectInstalls scans standard KSP locations and saves results to config.

@@ -1,4 +1,4 @@
-module ksp-moder
+module ksp-modder
 
 go 1.25.0
 

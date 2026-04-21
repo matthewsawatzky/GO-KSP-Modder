@@ -3,7 +3,7 @@ package handlers
 import (
 	"net/http"
 
-	"ksp-moder/services"
+	"ksp-modder/services"
 )
 
 var validFilters = map[string]bool{
