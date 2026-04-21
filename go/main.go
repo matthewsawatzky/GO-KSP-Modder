@@ -22,8 +22,8 @@ import (
 
 	"golang.org/x/term"
 
-	"ksp-moder/config"
-	"ksp-moder/handlers"
+	"ksp-modder/config"
+	"ksp-modder/handlers"
 )
 
 //go:embed static
@@ -226,7 +226,7 @@ func isOurInstance(port int) bool {
 	if err != nil {
 		return false
 	}
-	return strings.Contains(string(body), "ksp-moder")
+	return strings.Contains(string(body), "ksp-modder")
 }
 
 func quitOtherInstance(port int) error {
@@ -469,7 +469,7 @@ func main() {
 	// Fingerprint — identifies this process as KSP Moder to new instances.
 	mux.HandleFunc("GET /isprogramopen", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprint(w, `{"app":"ksp-moder"}`)
+		fmt.Fprint(w, `{"app":"ksp-modder"}`)
 	})
 
 	// Remote-quit — only honoured from loopback; signals the key loop to exit.

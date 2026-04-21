@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"os"
 
-	"ksp-moder/config"
+	"ksp-modder/config"
 )
 
 // Handler holds shared dependencies for all HTTP handlers.

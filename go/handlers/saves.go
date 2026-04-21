@@ -3,7 +3,7 @@ package handlers
 import (
 	"net/http"
 
-	"ksp-moder/services"
+	"ksp-modder/services"
 )
 
 // ListSaves returns all save games with backup information.

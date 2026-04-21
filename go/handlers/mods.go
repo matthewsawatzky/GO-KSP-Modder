@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"ksp-moder/services"
+	"ksp-modder/services"
 )
 
 // ListMods returns all mods with conflict and note data, plus total GameData size.
