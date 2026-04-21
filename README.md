@@ -73,4 +73,7 @@ chmod +x <name_of_program>
 
 > sorry these instructions are not as clean as I'd like... but I hope and pray you don't need them
 
+### More Trouble?..
+Please email: matthew@orboul.com
+
 </details>
