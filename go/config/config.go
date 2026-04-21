@@ -3,8 +3,22 @@ package config
 import (
 	"encoding/json"
 	"os"
+	"path/filepath"
 	"sync"
 )
+
+// DefaultConfigPath returns the platform-appropriate config file location:
+//
+//	macOS   → ~/Library/Application Support/ksp-moder/config.json
+//	Windows → %AppData%\Roaming\ksp-moder\config.json
+//	Linux   → ~/.config/ksp-moder/config.json
+func DefaultConfigPath() (string, error) {
+	dir, err := os.UserConfigDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(dir, "ksp-moder", "config.json"), nil
+}
 
 // Settings holds user preferences.
 type Settings struct {
@@ -49,8 +63,11 @@ func NewManager(path string) *Manager {
 	return &Manager{path: path}
 }
 
-// EnsureConfig creates the config file with defaults if it does not exist.
+// EnsureConfig creates the config directory and file with defaults if they do not exist.
 func (m *Manager) EnsureConfig() error {
+	if err := os.MkdirAll(filepath.Dir(m.path), 0755); err != nil {
+		return err
+	}
 	if _, err := os.Stat(m.path); os.IsNotExist(err) {
 		return m.write(defaults())
 	}
